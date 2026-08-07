@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo, sqlite3, pdo_sqlite
+          coverage: none
+
+      # composer install also creates .env from .env.example and sets APP_KEY.
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Lint (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Static analysis (PHPStan)
+        run: vendor/bin/phpstan analyse --no-progress
+
+      - name: Tests
+        run: php artisan test

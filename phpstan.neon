@@ -1,0 +1,15 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 5
+
+    paths:
+        - app
+        - database
+        - routes
+
+    # Keep this baseline empty. New code should not add errors — if you find
+    # yourself wanting to ignore something, prefer fixing it or narrowing the
+    # ignore here with a comment explaining why.
+    ignoreErrors: []
