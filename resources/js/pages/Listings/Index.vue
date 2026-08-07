@@ -1,10 +1,10 @@
 <script setup>
 import { ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
-import AppLayout from '../../Components/AppLayout.vue';
-import ListingCard from '../../Components/ListingCard.vue';
-import ListingFilters from '../../Components/ListingFilters.vue';
-import Pagination from '../../Components/Pagination.vue';
+import AppLayout from '../../components/AppLayout.vue';
+import ListingCard from '../../components/ListingCard.vue';
+import ListingFilters from '../../components/ListingFilters.vue';
+import Pagination from '../../components/Pagination.vue';
 
 const props = defineProps({
     listings: { type: Object, required: true },

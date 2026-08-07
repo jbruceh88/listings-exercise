@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import AppLayout from '../../Components/AppLayout.vue';
+import AppLayout from '../../components/AppLayout.vue';
 import { formatDate, formatPrice } from '../../format';
 
 defineProps({

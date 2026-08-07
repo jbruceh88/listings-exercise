@@ -57,8 +57,8 @@ database/
   migrations/            branches, listings
   seeders/               DatabaseSeeder
 resources/js/
-  Pages/Listings/        Index.vue, Show.vue
-  Components/            AppLayout, ListingCard, ListingFilters, Pagination
+  pages/Listings/        Index.vue, Show.vue
+  components/            AppLayout, ListingCard, ListingFilters, Pagination
   app.js                 Inertia entry point
 routes/                  web.php
 tests/Feature/           ListingPageTest, ListingTest
@@ -78,7 +78,7 @@ Laravel + **Inertia** + Vue 3 + Tailwind — the same shape as our internal apps
 | GET    | `/`                  | `Listings/Index`  | Live listings, paginated. Filters: `property_type`, `max_price`, `min_bedrooms`, `region`, `per_page`. |
 | GET    | `/listings/{listing}`| `Listings/Show`   | A single live listing. Non-live listings 404.              |
 
-Filters live in the query string, so a search is shareable, bookmarkable and survives the back button. `Listings/Index.vue` seeds its form from the `filters` prop and re-issues a `router.get` on submit.
+Filters live in the query string, so a search is shareable, bookmarkable and survives the back button. `pages/Listings/Index.vue` seeds its form from the `filters` prop and re-issues a `router.get` on submit.
 
 ### Authentication
 
