@@ -1,59 +1,75 @@
 # Street Listings — Project Context
 
-## Codebase conventions
+A property-listings app: Laravel 13 + Inertia + Vue 3 + Tailwind. Lists
+properties for sale, organised by branch, with filtering and a detail view.
 
-This app has no separate JSON API. Controllers return `Inertia::render(...)`
-with props; API Resources (`ListingResource`, `BranchResource`) define the
-shape of those props. Follow this shape for any new page or data the
-frontend needs — don't introduce a parallel REST/JSON endpoint style unless
-there's a good reason (e.g. this alerts feature may justify one — note the
-trade-off if so).
+## Stack
+
+- **Laravel 13** — no separate JSON API. Controllers return
+  `Inertia::render(...)` with props; API Resources define the shape of
+  those props.
+- **Inertia + Vue 3** — pages in `resources/js/pages/`, shared components
+  in `resources/js/components/`.
+- **Tailwind** for styling.
+- **SQLite** locally (bundled with PHP, no separate DB server).
+
+## Layout
+
+app/
+Enums/ PropertyType, ListingStatus
+Http/
+Controllers/ ListingController
+Requests/ ListingIndexRequest (filter validation)
+Resources/ ListingResource, BranchResource
+Middleware/ ActAsDemoUser (auth stub — see below)
+HandleInertiaRequests (shared props)
+Models/ Branch, Listing
+database/
+factories/ BranchFactory, ListingFactory (with states)
+migrations/ branches, listings
+seeders/ DatabaseSeeder
+resources/js/
+pages/Listings/ Index.vue, Show.vue
+components/ AppLayout, ListingCard, ListingFilters, Pagination
+app.js Inertia entry point
+routes/ web.php
+tests/Feature/ ListingPageTest, ListingTest
+
+
+## The domain
+
+- **Branch** — a name and a region.
+- **Listing** — address, price, bedrooms, bathrooms, `property_type`,
+  `status` (`draft` / `live` / `under_offer` / `sold`), a branch, and a
+  `listed_at` date.
+
+## Conventions
 
 - **Routing**: `routes/web.php`, resolves to `Inertia::render`.
-- **Resources**: shape data going to the frontend. One Resource per model
-  concept, matching `ListingResource` / `BranchResource`.
+- **Resources**: one per model concept (`ListingResource`,
+  `BranchResource`), define the shape of data sent to the frontend. Don't
+  introduce a parallel JSON/REST style without good reason.
 - **Enums**: domain vocabularies (`PropertyType`, `ListingStatus`) live in
-  `app/Enums/`. Use PHP enums, not magic strings.
+  `app/Enums/`. Prefer PHP enums over magic strings/constants.
 - **Validation**: Form Requests (`app/Http/Requests/`), not inline
   controller validation — see `ListingIndexRequest`.
-- **Auth**: stubbed via `App\Http\Middleware\ActAsDemoUser`. Always build
-  against `auth()->user()` / `$request->user()`.
-- **Filters/state**: query-string driven where relevant, so state is
-  shareable and bookmarkable.
-- **Frontend**: Vue 3 + Tailwind, pages in `resources/js/pages/`,
-  reusable pieces in `resources/js/components/`.
+- **Filters/state**: query-string driven, so a search is shareable,
+  bookmarkable, and survives the back button (`ListingFilters.vue` seeds
+  from the `filters` prop, re-issues `router.get` on submit).
 
-Checks before considering work done:
+## Authentication
 
-php artisan test
-vendor/bin/pint --test
-vendor/bin/phpstan analyse
+Auth is stubbed via `App\Http\Middleware\ActAsDemoUser` — every request
+resolves as the seeded demo user (`demo@street.example`). Build
+user-scoped work against `$request->user()` / `auth()->user()` as normal;
+it returns the demo user. The resolver returns `null` until the database
+is seeded (`php artisan migrate --seed`).
+
+## Checks before considering work done
+
+php artisan test # PHPUnit feature/unit tests
+vendor/bin/pint --test # Code style (Laravel Pint)
+vendor/bin/phpstan analyse # Static analysis (Larastan, level 5)
 
 
-## Saved-search alerts feature — the brief
-
-1. A user can **create, view, and delete saved searches** — a set of
-   criteria (e.g. max price, min bedrooms, property type, region).
-2. When a **new listing becomes live** matching a saved search, an
-   **alert** is generated for that user.
-3. A user can **see their alerts**.
-
-Constraints: no real emails, no queue worker required — a persisted alert
-record or log/database-driver notification is enough (describe a queue
-design if implied, don't build it). Auth is stubbed — build against
-`auth()->user()`. Prioritise a clean, well-tested vertical slice over
-breadth — don't gold-plate.
-
-Open decisions to make explicitly (state the call + one-line reasoning in
-code comments or NOTES.md, don't pick silently):
-- What counts as a "match"?
-- Backfill: alert on already-live matches, or only future listings?
-- Duplicate alerts: one per user, or one per matching saved search?
-- Criteria set: max price vs. range, which filters to support.
-- Anti-spam: Support flagged this explicitly — avoid re-alerting on
-  unchanged matches.
-
-Definition of done: tests assert behaviour that matters (matching logic,
-alert creation, saved-search CRUD); `NOTES.md` at repo root covers key
-decisions, trade-offs, what was left out, what's next, where it'd break at
-scale; work on a branch, PR against your own fork.
+All three run in CI (`.github/workflows/ci.yml`) on push and PR.
