@@ -17,3 +17,7 @@ day around midday, e.g.:
 
 Scheduling isn't configured in this exercise; run the command manually
 to see it work.
+
+## In production 
+The command would actually generate an email and then would send to AWS SQS to be processed. 
+Depending on how many alerts would be sent on average you could fan the alerts batched using SQS Batch Actions. 
